@@ -19,16 +19,35 @@ import datetime
 import urllib
 import settings
 import pandas as pd
+import numpy as np
 
 
 def process():
     logging.info("************************ process start ***************************************")
     try:
+        sts = []
+        cys = []
+        kcs = []
         all_data = ts.get_today_all()
         subset = all_data[['code', 'name', 'nmc','mktcap']]
+
+        #剔除出创业板的股票
+        cy_data = subset[subset.code.str.contains('^30')]
+        cys = cy_data['code'].values.tolist()
+        for cy in cys:
+            subset = subset.drop(
+                index=(subset.loc[(subset['code'] == cy)].index))
+
+        # 剔除出科创板的股票
+        kc_data = subset[subset.code.str.contains('^68')]
+        kcs = kc_data['code'].values.tolist()
+        for kc in kcs:
+            subset = subset.drop(
+                index=(subset.loc[(subset['code'] == kc)].index))
+
         subset.to_csv(settings.config['stocks_file'], index=None, header=True)
         stocks = [tuple(x) for x in subset.values]
-        statistics(all_data, stocks)
+        # statistics(all_data, stocks)
     except urllib.error.URLError as e:
         subset = pd.read_csv(settings.config['stocks_file'])
         subset['code'] = subset['code'].astype(str)
@@ -61,16 +80,20 @@ def process():
 
 
 def check(stocks, strategy, strategy_func):
+    # end = '2021-09-23'
     end = None
+
     m_filter = check_enter(end_date=end, strategy_fun=strategy_func)
     results = list(filter(m_filter, stocks))
+    a = np.array(results)
+    results_filter = a[:,1].tolist()
     # print (len(results))
     maxp5 = []
     for x in range(len(results)):
         # results[x].append(gordon_trade.results_maxp5(
         #     results[x], utils.read_data(results[x]), end_date=None, threshold=5))
         maxp5.append(gordon_trade.results_maxp5(
-            results[x], utils.read_data(results[x]), end_date=None, threshold=settings.config['max_price_day']))
+            results[x], utils.read_data(results[x]), end_date=end, threshold=settings.config['max_price_day']))
     print (len(maxp5))
 
     results_pd = pd.DataFrame(results, dtype=str, columns=[
@@ -78,7 +101,9 @@ def check(stocks, strategy, strategy_func):
     results_pd['maxp5'] = maxp5
     results_pd.to_csv(
         settings.config['selected_file'], index=None, header=True)
-    push.strategy('**************"{0}"**************\n{1}\n**************"{0}"**************\n'.format(strategy, results))
+    push.strategy(
+        '**************"{0}"**************\n{1}\n**************"{0}"**************\n'.format(
+            strategy, results_filter))
 
 def check_enter(end_date=None, strategy_fun=enter.check_volume):
     def end_date_filter(code_name):

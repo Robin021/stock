@@ -7,9 +7,12 @@ import subprocess
 import pandas as pd
 import requests
 import prettytable
+from prettytable import MSWORD_FRIENDLY
+
 import settings
 import concurrent.futures
 import math
+import push
 
 def add_market_code(x):
     y = '0.' + x
@@ -17,15 +20,26 @@ def add_market_code(x):
         y = '1.' + x
     return y
 
+def calc_limit_price(pre_close):
+    if pre_close == 0:
+        return 0
+
+    limit = pre_close + pre_close*0.1
+    limit = '%.2f' % limit
+    # print(limit)
+    return float(limit)
     # f2最新价 f3涨跌幅 f4涨跌额 f5成交量 f6成交额 f7振幅
     # f8换手率 f12 代码  f14 名称  f15最高价  f16最低  f17今开 f18昨收  f23 市净率,f10量比 f9市盈率 f20总市值
-    
+
+
+
+
 def get_data(stock_codes):
     stock_codes = list(map(add_market_code, stock_codes))
     stock_codes = ','.join(stock_codes)
 
     endpoint = 'http://push2.eastmoney.com/api/qt/ulist.np/get'
-    var1 = '?fields=f2,f3,f14,f12,f13,f19,f20,f10'
+    var1 = '?fields=f2,f3,f14,f12,f13,f19,f20,f10,f18'
     var2 = '&invt=2&fltt=2&fid=f3'
     var3 = '&ut=bd1d9ddb04089700cf9c27f6f7426281&cb=&secids='
     url = '{0}{1}{2}{3}{4}'.format(endpoint, var1, var2, var3, stock_codes)
@@ -52,7 +66,9 @@ def hyphen_to_zero(x):
 def Calc():
     tb = prettytable.PrettyTable()
     tb.field_names = ['股票代码', '股票名称', '最新价', '涨跌幅', '警报']
-
+    # tb.field_names = ['代码', '名称', '最新价', '涨跌幅']
+    tb.set_style(MSWORD_FRIENDLY)
+    strategy = "高登交易法则"
     settings.init()
     stocks_d = pd.read_csv(settings.config['selected_file'], dtype=str)
     stocks_d.code = (stocks_d['code']).astype(str)
@@ -73,18 +89,35 @@ def Calc():
             msg = ''
             # 针对所有自选股票的判断条件
             stock_c = stock['f12']
-            if stock['f3'] >= settings.config['alarm_at'] and stock['f3'] <= 9.5:
+            # print(stock['f12'])
+            limit_price = calc_limit_price(
+                stock['f18'])
+            limit_percent = (limit_price-stock['f18'])/stock['f18']*100 
+            limit_percent = '%.2f' % limit_percent
+            # print(stock['f12'],limit_percent)
+            # if stock['f12'] == '600597':
+                # print("************600597*********")
+            if stock['f3'] >= settings.config['alarm_at'] and stock['f3'] < float(limit_percent):
+                # print(stock['f12'])
                 if stock['f12'] not in []:
+                    # print(stock['f12'])
                     if settings.config['max_total'] <= stock['f20'] <= settings.config['min_total']:
+                        # print(stock['f2'],stocks_dict[stock_c])
                         if stock['f2'] > stocks_dict[stock_c]:
+                            # print(stock['f2'])
                             msg = '{}即将涨停'.format(stock['f14']) 
+                            # print(msg)
 
             if msg:
                 alarms.append(msg)
                 row = [stock['f12'], stock['f14'], stock['f2'], stock['f3']]
                 row.append(msg)
                 tb.add_row(row)
-
+                # push.statistics(msg)
+    # push.strategy(
+    #     '**************"{0}"**************\n{1}\n**************"{0}"**************\n'.format(strategy, tb))
+    # print(tb._get_rows)
+    push.statistics(format(tb))
     print(tb)
     
     for alarm in alarms:
@@ -93,8 +126,8 @@ def Calc():
 if __name__ == '__main__':
     while True:
         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))
-        try:
-            Calc()
-        except:
-            print('Failed')
+        # try:
+        Calc()
+        # except:
+            # print('Failed')
         time.sleep(3)

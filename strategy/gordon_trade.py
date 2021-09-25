@@ -30,6 +30,16 @@ def results_maxp5(code_name, data, end_date=None, threshold=5):
             max_price = float(row['high'])
     return max_price
 
+
+def calc_limit_price(pre_close):
+    if pre_close == 0:
+        return 0
+
+    limit = pre_close + pre_close*0.1
+    limit = '%.2f' % limit
+    # print(limit)
+    return float(limit)
+
 def check(code_name, data, end_date=None, threshold=10):
     origin_data = data
     if len(data) < threshold:
@@ -49,7 +59,7 @@ def check(code_name, data, end_date=None, threshold=10):
     if last_close < 5:
         return False
 
-    if data.iloc[-1]['p_change'] >= 9.5:
+    if data.iloc[-1]['p_change'] >= calc_limit_price(last_close):
         return False
 
     #  市值2000-50亿
@@ -61,6 +71,11 @@ def check(code_name, data, end_date=None, threshold=10):
     #     return False
     if 'ST' in code_name[1]:
         return False
-
+    # print(data.iloc[-1]['code'])
+    # if data.iloc[-1]['code'].startswith('^68'):
+    #     return False
+    
+    # if data.iloc[-1]['code'].startswith('^300'):
+    #     return False
     # push.strategy("股票{0} ".format(code_name))
     return True

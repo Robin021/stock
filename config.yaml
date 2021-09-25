@@ -10,8 +10,9 @@ max_price_day: 5
 
 
 push:
-  enable: false
-  url: "https://message.1more.cn:5378/api/send_message"
+  enable: true
+  type: "groupchat"
+  url: "https://message.1more.cn:5443/api/send_message"
   admin: "admin@message.1more.cn"
   admin_pass: "abcd_123"
-  user: "stock@message.1more.cn"
+  user: "ehelo@conference.message.1more.cn"

@@ -8,7 +8,7 @@ import settings
 def push(msg):
     if settings.config['push']['enable']:
         payload = json.dumps({
-            "type": "headline",
+            "type": settings.config['push']['type'],
             "from": settings.config['push']['admin'],
             "to": settings.config['push']['user'],
             "subject": "investing",

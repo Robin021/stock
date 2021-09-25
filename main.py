@@ -13,7 +13,7 @@ def job():
         work_flow.process()
 
 
-logging.basicConfig(format='%(asctime)s %(message)s', filename='sequoia.log')
+logging.basicConfig(format='%(asctime)s %(message)s', filename='stock.log')
 logging.getLogger().setLevel(logging.INFO)
 settings.init()
 
