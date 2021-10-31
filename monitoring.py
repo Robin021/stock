@@ -14,24 +14,24 @@ import concurrent.futures
 import math
 import push
 
+
 def add_market_code(x):
     y = '0.' + x
     if x.startswith('6'):
         y = '1.' + x
     return y
 
+
 def calc_limit_price(pre_close):
     if pre_close == 0:
         return 0
 
-    limit = pre_close + pre_close*0.1
+    limit = pre_close + pre_close * 0.1
     limit = '%.2f' % limit
     # print(limit)
     return float(limit)
     # f2最新价 f3涨跌幅 f4涨跌额 f5成交量 f6成交额 f7振幅
     # f8换手率 f12 代码  f14 名称  f15最高价  f16最低  f17今开 f18昨收  f23 市净率,f10量比 f9市盈率 f20总市值
-
-
 
 
 def get_data(stock_codes):
@@ -75,11 +75,12 @@ def Calc():
     stocks_d.maxp5 = (stocks_d['maxp5']).astype(float)
     stocks_dict = stocks_d.set_index('code')['maxp5'].to_dict()
     stocks = pd.read_csv(settings.config['selected_file'], dtype=str)
-    pages = math.ceil(len(stocks)/100)
-    
-    for page in range(1,pages):
-        stock_codes = stocks.loc[(page-1)*100:page *
+    pages = math.ceil(len(stocks) / 100)
+
+    for page in range(1, pages):
+        stock_codes = stocks.loc[(page - 1) * 100:page *
                                  100, 'code'].values.astype(str).tolist()
+
         stock_list = get_data(stock_codes)
         stock_list = list(map(hyphen_to_zero, stock_list))
         stock_list = sorted(stock_list, key=lambda x: x['f3'], reverse=True)
@@ -92,22 +93,24 @@ def Calc():
             # print(stock['f12'])
             limit_price = calc_limit_price(
                 stock['f18'])
-            limit_percent = (limit_price-stock['f18'])/stock['f18']*100 
+            limit_percent = (limit_price - stock['f18']) / stock['f18'] * 100
             limit_percent = '%.2f' % limit_percent
             # print(stock['f12'],limit_percent)
             # if stock['f12'] == '600597':
-                # print("************600597*********")
+            # print("************600597*********")
             if stock['f3'] >= settings.config['alarm_at'] and stock['f3'] < float(limit_percent):
                 # print(stock['f12'])
                 if stock['f12'] not in []:
                     # print(stock['f12'])
                     if settings.config['max_total'] <= stock['f20'] <= settings.config['min_total']:
                         # print(stock['f2'],stocks_dict[stock_c])
+                        # 判断5天最高价满足条件
                         if stock['f2'] > stocks_dict[stock_c]:
                             # print(stock['f2'])
-                            msg = '{}即将涨停'.format(stock['f14']) 
+                            msg = '{}即将涨停'.format(stock['f14'])
                             # print(msg)
-
+    # f2最新价 f3涨跌幅 f4涨跌额 f5成交量 f6成交额 f7振幅
+    # f8换手率 f12 代码  f14 名称  f15最高价  f16最低  f17今开 f18昨收  f23 市净率,f10量比 f9市盈率 f20总市值
             if msg:
                 alarms.append(msg)
                 row = [stock['f12'], stock['f14'], stock['f2'], stock['f3']]
@@ -119,9 +122,10 @@ def Calc():
     # print(tb._get_rows)
     push.statistics(format(tb))
     print(tb)
-    
+
     for alarm in alarms:
         speak(alarm)
+
 
 if __name__ == '__main__':
     while True:
@@ -129,5 +133,5 @@ if __name__ == '__main__':
         # try:
         Calc()
         # except:
-            # print('Failed')
+        # print('Failed')
         time.sleep(3)

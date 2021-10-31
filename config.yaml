@@ -3,7 +3,9 @@ data_dir: "data"
 db_dir: "storage"
 stocks_file: "./storage/stocks.csv"
 selected_file: "./storage/selected.csv"
-alarm_at: 7
+alarm_a: 7
+alarm_b: 8
+alarm_c: 9
 max_total: 6000000000
 min_total: 200000000000
 max_price_day: 5
