@@ -1,4 +1,4 @@
-FROM python:3.8-slim AS compile-image
+FROM python:3.8-slim
 RUN apt-get update -y
 RUN apt-get install -y --no-install-recommends build-essential gcc wget
 
