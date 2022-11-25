@@ -20,7 +20,7 @@ RUN apt-get -yq autoremove
 RUN apt-get clean
 RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-#RUN pip install numpy
+RUN pip install numpy
 WORKDIR /opt
 # TA-Lib
 COPY . /opt
