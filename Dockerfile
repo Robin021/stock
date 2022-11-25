@@ -11,8 +11,8 @@ ENV PATH="/opt/venv/bin:$PATH"
 RUN cd ; wget https://support.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.13/hdf5-1.13.3/src/hdf5-1.13.3.tar.gz
 RUN cd ; tar zxf hdf5-1.13.3.tar.gz
 RUN cd ; mv hdf5-1.13.3 hdf5-setup
-RUN cd ; cd hdf5-setup ; ./configure --prefix=/usr/local/
-RUN cd ; cd hdf5-setup ; make && make install
+RUN cd ; cd hdf5-setup ; sudo ./configure --prefix=/usr/local/
+RUN cd ; cd hdf5-setup ; sudo make && sudo make install
 
 # cleanup
 RUN cd ; rm -rf hdf5-setup
