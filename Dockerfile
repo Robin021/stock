@@ -36,4 +36,4 @@ RUN pip install -r requirements.txt
 RUN ls
 #RUN pip install -r requirements.txt
 
-CMD ["python","/opt/monitoring.py"]
+CMD ["python","/opt/main.py"]
