@@ -6,7 +6,6 @@ RUN apt-get install -y --no-install-recommends build-essential gcc wget
 RUN python -m venv /opt/venv
 RUN /opt/venv/bin/python -m pip install --upgrade pip
 ENV PATH="/opt/venv/bin:$PATH"
-WORKDIR /tmp
 
 #hdf5
 RUN cd ; wget https://support.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.13/hdf5-1.13.3/src/hdf5-1.13.3.tar.gz
