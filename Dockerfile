@@ -1,11 +1,12 @@
-FROM python:3.8-slim
+FROM rezaq/ta-lib-python-3.8.10-slim
+
 RUN apt-get update -y
 RUN apt-get install -y --no-install-recommends build-essential gcc wget
 
 # Make sure we use the virtualenv:
-RUN python -m venv /opt/venv
-RUN /opt/venv/bin/python -m pip install --upgrade pip
-ENV PATH="/opt/venv/bin:$PATH"
+#RUN python -m venv /opt/venv
+#RUN /opt/venv/bin/python -m pip install --upgrade pip
+#ENV PATH="/opt/venv/bin:$PATH"
 
 #hdf5
 RUN cd ; wget https://support.hdfgroup.org/ftp/HDF5/prev-releases/hdf5-1.13/hdf5-1.13.3/src/hdf5-1.13.3.tar.gz
@@ -24,14 +25,15 @@ RUN rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 WORKDIR /opt
 # TA-Lib
 COPY . /opt
+RUN /usr/local/bin/python -m pip install --upgrade pip
+RUN pip install pandas tushare PyYAML requests xlrd TA-Lib tables schedule prettytable numpy
+#RUN cd ta-lib/ && \
+#  ./configure --prefix=/usr --build=aarch64-unknown-linux-gnu && \
+#  make && \
+#  make install
 
-RUN cd ta-lib/ && \
-  ./configure --prefix=/usr --build=aarch64-unknown-linux-gnu && \
-  make && \
-  make install
-
-COPY requirements.txt .
-RUN pip install -r requirements.txt
+#COPY requirements.txt .
+#RUN pip install -r requirements.txt
 
 RUN ls
 #RUN pip install -r requirements.txt

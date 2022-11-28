@@ -1,4 +1,4 @@
-cron: false
+cron: true
 data_dir: "data"
 db_dir: "storage"
 stocks_file: "./storage/stocks.csv"
